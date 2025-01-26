@@ -2,47 +2,43 @@ import tkinter as tk
 from tkinter import messagebox
 import sqlite3
 
-def actualizar_total(año, mes):
+def actualizar_total(id_registro):
     # Conectar a la base de datos
     conn = sqlite3.connect('datos.db')
     cursor = conn.cursor()
 
-    # Verificar si el registro existe
+    # Calcular ingresos totales
     cursor.execute('''
-        SELECT COUNT(*) FROM registros WHERE ano = ? AND mes = ?
-    ''', (año, mes))
+        SELECT COALESCE(SUM(i.importe), 0)
+        FROM ingresos i
+        WHERE i.registro_id = ?
+    ''', (id_registro,))
+    ingresos_totales = cursor.fetchone()[0]
 
-    if cursor.fetchone()[0] == 0:
-        messagebox.showwarning("Advertencia", f"No existe registro para {año}-{mes}.")
-        conn.close()
-        return
-
-    # Calcular el total (sumando ingresos y restando gastos)
+    # Calcular gastos totales
     cursor.execute('''
-        SELECT COALESCE(SUM(i.importe), 0), COALESCE(SUM(g.importe), 0)
-        FROM registros r
-        LEFT JOIN ingresos i ON r.id = i.registro_id
-        LEFT JOIN gastos g ON r.id = g.registro_id
-        WHERE r.ano = ? AND r.mes = ?
-    ''', (año, mes))
+        SELECT COALESCE(SUM(g.importe), 0)
+        FROM gastos g
+        WHERE g.registro_id = ?
+    ''', (id_registro,))
+    gastos_totales = cursor.fetchone()[0]
 
-    ingresos_totales, gastos_totales = cursor.fetchone()  # Obtiene los totales de ingresos y gastos
-
-    # Calculamos el total como ingresos - gastos
+    # Calcular el total como ingresos - gastos
     total = ingresos_totales - gastos_totales
+
+    print(f"Ingresos totales: {ingresos_totales}  Gastos totales: {gastos_totales}  Total: {total}")
 
     # Actualizar el campo total en la tabla registros
     cursor.execute('''
         UPDATE registros
         SET total = ?
-        WHERE ano = ? AND mes = ?
-    ''', (total, año, mes))
+        WHERE id = ?
+    ''', (total, id_registro))
 
     conn.commit()
     conn.close()
 
-
-def guardar_gasto(id_registro, nombre, importe, año, mes):
+def guardar_gasto(id_registro, nombre, importe):
     conn = sqlite3.connect('datos.db')
     cursor = conn.cursor()
 
@@ -56,11 +52,11 @@ def guardar_gasto(id_registro, nombre, importe, año, mes):
     conn.close()
 
     # Actualizar el total en la tabla registros
-    actualizar_total(año, mes)
+    actualizar_total(id_registro)
 
     messagebox.showinfo("Éxito", "Gasto guardado exitosamente.")
 
-def guardar_ingreso(id_registro, nombre, importe, año, mes):
+def guardar_ingreso(id_registro, nombre, importe):
     conn = sqlite3.connect('datos.db')
     cursor = conn.cursor()
 
@@ -74,7 +70,7 @@ def guardar_ingreso(id_registro, nombre, importe, año, mes):
     conn.close()
 
     # Actualizar el total en la tabla registros
-    actualizar_total(año, mes)
+    actualizar_total(id_registro)
 
     messagebox.showinfo("Éxito", "Ingreso guardado exitosamente.")
 
@@ -105,7 +101,7 @@ def ventana_formulario(id, año, mes):
         try:
             importe = float(ingreso_importe.get())
             if nombre and importe > 0:
-                guardar_ingreso(id, nombre, importe, año, mes)
+                guardar_ingreso(id, nombre, importe)
             else:
                 messagebox.showwarning("Advertencia", "El importe debe ser mayor que 0.")
         except ValueError:
@@ -130,7 +126,7 @@ def ventana_formulario(id, año, mes):
         try:
             importe = float(gasto_importe.get())
             if nombre and importe > 0:
-                guardar_gasto(id, nombre, importe, año, mes)
+                guardar_gasto(id, nombre, importe)
             else:
                 messagebox.showwarning("Advertencia", "El importe debe ser mayor que 0.")
         except ValueError:
