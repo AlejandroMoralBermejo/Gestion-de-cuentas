@@ -86,7 +86,7 @@ def ventana_ano_mes():
     if ventana == "formulario":
       ventana_formulario(id, ano, mes)
     else:
-      ventana_datos(ano,mes)
+      ventana_datos(id)
 
 
   button_ir_formulario = tk.Button(ventana, text="Formulario", command=lambda: procesar_registro("formulario"))
