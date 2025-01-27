@@ -76,60 +76,42 @@ def guardar_ingreso(id_registro, nombre, importe):
 
 def ventana_formulario(id, año, mes):
     ventana = tk.Toplevel()
-    ventana.title("Año y Mes")
-    ventana.geometry("650x600")
+    ventana.title(f"Formulario - {mes}/{año}")
+    ventana.geometry("600x700")
+    ventana.configure(bg="#F9F9F9")
 
-    # Título
-    tk.Label(ventana, text="Formulario para Ingresos y Gastos", font=("Arial", 14, "bold")).pack(pady=10)
+    tk.Label(ventana, text=f"Formulario para Ingresos y Gastos ({mes}/{año})",
+             font=("Arial", 16, "bold"), bg="#4CAF50", fg="white", pady=10).pack(fill=tk.X)
 
-    # No hay campo de ID de registro, se usa el ID pasado como parámetro
 
-    # Parte de Ingresos
-    ingresos_frame = tk.LabelFrame(ventana, text="Ingresos", font=("Arial", 12), padx=20, pady=20)
+    ingresos_frame = tk.LabelFrame(ventana, text="Ingresos", font=("Arial", 12), padx=20, pady=20, bg="#E8F5E9")
     ingresos_frame.pack(fill="both", expand=True, padx=10, pady=5)
 
-    tk.Label(ingresos_frame, text="Concepto de ingreso", font=("Arial", 10)).pack(pady=5)
+    tk.Label(ingresos_frame, text="Concepto", font=("Arial", 10), bg="#E8F5E9").pack(pady=5)
     ingreso_nombre = tk.Entry(ingresos_frame, font=("Arial", 10))
     ingreso_nombre.pack(pady=5)
 
-    tk.Label(ingresos_frame, text="Importe", font=("Arial", 10)).pack(pady=5)
+    tk.Label(ingresos_frame, text="Importe (€)", font=("Arial", 10), bg="#E8F5E9").pack(pady=5)
     ingreso_importe = tk.Entry(ingresos_frame, font=("Arial", 10))
     ingreso_importe.pack(pady=5)
 
-    def insertar_ingreso():
-        nombre = ingreso_nombre.get()
-        try:
-            importe = float(ingreso_importe.get())
-            if nombre and importe > 0:
-                guardar_ingreso(id, nombre, importe)
-            else:
-                messagebox.showwarning("Advertencia", "El importe debe ser mayor que 0.")
-        except ValueError:
-            messagebox.showwarning("Advertencia", "El importe debe ser un número válido.")
+    tk.Button(ingresos_frame, text="Guardar Ingreso",
+              command=lambda: [guardar_ingreso(id, ingreso_nombre.get(), float(ingreso_importe.get()))],
+              font=("Arial", 12), bg="#4CAF50", fg="white").pack(pady=10)
 
-    tk.Button(ingresos_frame, text="Insertar Ingreso", command=insertar_ingreso, font=("Arial", 12)).pack(pady=10)
-
-    # Parte de Gastos
-    gastos_frame = tk.LabelFrame(ventana, text="Gastos", font=("Arial", 12), padx=20, pady=20)
+    gastos_frame = tk.LabelFrame(ventana, text="Gastos", font=("Arial", 12), padx=20, pady=20, bg="#FFEBEE")
     gastos_frame.pack(fill="both", expand=True, padx=10, pady=5)
 
-    tk.Label(gastos_frame, text="Concepto de gasto", font=("Arial", 10)).pack(pady=5)
+    tk.Label(gastos_frame, text="Concepto", font=("Arial", 10), bg="#FFEBEE").pack(pady=5)
     gasto_nombre = tk.Entry(gastos_frame, font=("Arial", 10))
     gasto_nombre.pack(pady=5)
 
-    tk.Label(gastos_frame, text="Importe", font=("Arial", 10)).pack(pady=5)
+    tk.Label(gastos_frame, text="Importe (€)", font=("Arial", 10), bg="#FFEBEE").pack(pady=5)
     gasto_importe = tk.Entry(gastos_frame, font=("Arial", 10))
     gasto_importe.pack(pady=5)
 
-    def insertar_gasto():
-        nombre = gasto_nombre.get()
-        try:
-            importe = float(gasto_importe.get())
-            if nombre and importe > 0:
-                guardar_gasto(id, nombre, importe)
-            else:
-                messagebox.showwarning("Advertencia", "El importe debe ser mayor que 0.")
-        except ValueError:
-            messagebox.showwarning("Advertencia", "El importe debe ser un número válido.")
+    tk.Button(gastos_frame, text="Guardar Gasto",
+              command=lambda: [guardar_gasto(id, gasto_nombre.get(), float(gasto_importe.get()))],
+              font=("Arial", 12), bg="#D32F2F", fg="white").pack(pady=10)
 
-    tk.Button(gastos_frame, text="Insertar Gasto", command=insertar_gasto, font=("Arial", 12)).pack(pady=10)
+
